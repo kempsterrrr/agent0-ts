@@ -5,10 +5,7 @@
 import { GraphQLClient } from 'graphql-request';
 import type { AgentSummary, SearchParams } from '../models/interfaces';
 import { normalizeAddress } from '../utils/validation';
-// TEMPORARY: Commented out due to missing GraphQL types (pre-existing build issue)
-// import type { Agent, AgentRegistrationFile } from '../models/generated/subgraph-types';
-type Agent = any; // Temporary placeholder
-type AgentRegistrationFile = any; // Temporary placeholder
+import type { Agent, AgentRegistrationFile } from '../models/generated/subgraph-types';
 
 export interface SubgraphQueryOptions {
   where?: Record<string, unknown>;
