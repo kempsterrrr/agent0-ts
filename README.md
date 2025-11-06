@@ -10,8 +10,8 @@ Agent0 SDK v0.21 enables you to:
 - **Advertise agent capabilities** - Publish MCP and A2A endpoints, with automated extraction of MCP tools and A2A skills from endpoints
 - **Enable permissionless discovery** - Make your agent discoverable by other agents and platforms using rich search by attributes, capabilities, skills, tools, tasks, and x402 support
 - **Build reputation** - Give and receive feedback, retrieve feedback history, and search agents by reputation with cryptographic authentication
-- **Cross-chain registration** - One-line registration with IPFS nodes, Pinata, Filecoin, or HTTP URIs
-- **Public indexing** - Subgraph indexing both on-chain and IPFS data for fast search and retrieval
+- **Cross-chain registration** - One-line registration with IPFS nodes, Pinata, Filecoin, Arweave, or HTTP URIs
+- **Public indexing** - Subgraph indexing both on-chain and decentralized storage (IPFS/Arweave) data for fast search and retrieval
 
 ## ⚠️ Alpha Release
 
@@ -27,7 +27,7 @@ Agent0 SDK v0.21 is in **alpha** with bugs and is not production ready. We're ac
 - npm or yarn package manager
 - Private key for signing transactions (or run in read-only mode)
 - Access to an Ethereum RPC endpoint (e.g., Alchemy, Infura)
-- (Optional) IPFS provider account (Pinata, Filecoin, or local IPFS node)
+- (Optional) Storage provider account (IPFS: Pinata, Filecoin, or local node; or Arweave)
 
 ### Install from npm
 
@@ -193,6 +193,22 @@ const sdk = new SDK({
 // Option 4: HTTP registration (no IPFS)
 const sdk = new SDK({ chainId: 11155111, rpcUrl: '...', signer: privateKey });
 await agent.registerHTTP('https://example.com/agent-registration.json');
+```
+
+## Arweave Storage Configuration
+
+```typescript
+// Arweave permanent storage
+const sdk = new SDK({
+  chainId: 11155111,
+  rpcUrl: '...',
+  signer: privateKey,
+  arweave: true,
+  arweavePrivateKey: 'your-arweave-private-key' // Optional (defaults to signer)
+});
+
+// Register with Arweave
+await agent.registerArweave();
 ```
 
 ## 🚀 Coming Soon
