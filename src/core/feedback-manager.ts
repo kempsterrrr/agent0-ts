@@ -275,6 +275,29 @@ export class FeedbackManager {
     const tag1 = this._stringToBytes32(tag1Str);
     const tag2 = this._stringToBytes32(tag2Str);
 
+
+    // PRE-VALIDATION: Validate transaction will succeed BEFORE uploading to Arweave
+    // This prevents orphaned uploads when on-chain validation fails
+    // (e.g., "Self-feedback not allowed", inactive agent, etc.)
+    if (!this.reputationRegistry) {
+      throw new Error('Reputation registry not available');
+    }
+
+    try {
+      // Estimate gas to trigger on-chain validation without spending credits
+      await this.reputationRegistry.giveFeedback.estimateGas(
+        BigInt(tokenId),
+        score,
+        tag1,
+        tag2,
+        '', // Empty URI for validation (we haven't uploaded yet)
+        '0x' + '00'.repeat(32), // Empty hash for validation
+        ethers.getBytes(authBytes.startsWith('0x') ? authBytes : '0x' + authBytes)
+      );
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      throw new Error(`Feedback validation failed: ${errorMessage}`);
+    }
     // Handle off-chain file storage with priority: Arweave > IPFS > on-chain only
     let feedbackUri = '';
     let feedbackHash = '0x' + '00'.repeat(32); // Default empty hash
