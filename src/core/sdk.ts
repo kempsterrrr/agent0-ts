@@ -16,10 +16,11 @@ import type { AgentRegistrationFile as SubgraphRegistrationFile } from '../model
 import type { AgentId, ChainId, Address, URI } from '../models/types.js';
 import { EndpointType, TrustModel } from '../models/enums.js';
 import { formatAgentId, parseAgentId } from '../utils/id-format.js';
-import { IPFS_GATEWAYS, TIMEOUTS } from '../utils/constants.js';
+import { IPFS_GATEWAYS, ARWEAVE_GATEWAYS, TIMEOUTS } from '../utils/constants.js';
 import { Web3Client, type TransactionOptions } from './web3-client.js';
 import { IPFSClient, type IPFSClientConfig } from './ipfs-client.js';
 import { SubgraphClient } from './subgraph-client.js';
+import { ArweaveClient, type ArweaveClientConfig } from './arweave-client.js';
 import { FeedbackManager } from './feedback-manager.js';
 import { AgentIndexer } from './indexer.js';
 import { Agent } from './agent.js';
@@ -41,6 +42,8 @@ export interface SDKConfig {
   ipfsNodeUrl?: string;
   filecoinPrivateKey?: string;
   pinataJwt?: string;
+  // Arweave configuration
+  arweave?: boolean;
   // Subgraph configuration
   subgraphUrl?: string;
   subgraphOverrides?: Record<ChainId, string>;
@@ -52,6 +55,7 @@ export interface SDKConfig {
 export class SDK {
   private readonly _web3Client: Web3Client;
   private _ipfsClient?: IPFSClient;
+  private _arweaveClient?: ArweaveClient;
   private _subgraphClient?: SubgraphClient;
   private readonly _feedbackManager: FeedbackManager;
   private readonly _indexer: AgentIndexer;
@@ -100,11 +104,19 @@ export class SDK {
     if (config.ipfs) {
       this._ipfsClient = this._initializeIpfsClient(config);
     }
+    // Initialize Arweave client
+    if (config.arweave && config.signer) {
+      const privateKey = typeof config.signer === 'string' ? config.signer : undefined;
+      if (privateKey) {
+        this._arweaveClient = new ArweaveClient({ privateKey });
+      }
+    }
 
     // Initialize feedback manager (will set registries after they're created)
     this._feedbackManager = new FeedbackManager(
       this._web3Client,
       this._ipfsClient,
+      this._arweaveClient,
       undefined, // reputationRegistry - will be set lazily
       undefined, // identityRegistry - will be set lazily
       this._subgraphClient
@@ -786,6 +798,9 @@ export class SDK {
 
   get ipfsClient(): IPFSClient | undefined {
     return this._ipfsClient;
+  }
+  get arweaveClient(): ArweaveClient | undefined {
+    return this._arweaveClient;
   }
 
   get subgraphClient(): SubgraphClient | undefined {

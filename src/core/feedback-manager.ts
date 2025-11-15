@@ -12,6 +12,7 @@ import type { AgentId, Address, URI, Timestamp, IdemKey } from '../models/types.
 import type { Web3Client } from './web3-client.js';
 import type { IPFSClient } from './ipfs-client.js';
 import type { SubgraphClient } from './subgraph-client.js';
+import type { ArweaveClient } from './arweave-client.js';
 import { parseAgentId, formatAgentId, formatFeedbackId, parseFeedbackId } from '../utils/id-format.js';
 import { DEFAULTS } from '../utils/constants.js';
 
@@ -35,6 +36,7 @@ export class FeedbackManager {
   constructor(
     private web3Client: Web3Client,
     private ipfsClient?: IPFSClient,
+    private arweaveClient?: ArweaveClient,
     private reputationRegistry?: ethers.Contract,
     private identityRegistry?: ethers.Contract,
     private subgraphClient?: SubgraphClient
